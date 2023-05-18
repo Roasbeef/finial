@@ -1,0 +1,72 @@
+# The address which the proxy can be reached at.
+listenaddr: "localhost:8085"
+
+# The root path of static content to serve upon receiving a request the proxy
+# cannot handle.
+staticroot: "./static"
+
+# Should the static file server be enabled that serves files from the directory
+# specified in `staticroot`?
+servestatic: false
+
+# The log level that should be used for the proxy.
+#
+# Valid options include: trace, debug, info, warn, error, critical, off.
+debuglevel: "debug"
+
+# The port on which the pprof profile will be served. If no port is provided,
+# the profile will not be served.
+profile: 9999
+
+insecure: true
+
+# Settings for the lnd node used to generate payment requests. All of these
+# options are required.
+authenticator:
+  # The host:port which lnd's RPC can be reached at.
+  lndhost: "X:10009"
+
+  # The path to lnd's TLS certificate.
+  #tlspath: "~/gocode/src/github.com/lightningnetwork/lnd/test_lnd/tls.cert"
+  tlspath: "tls.cert"
+
+  # The path to lnd's macaroon directory.
+  #macdir: "~/gocode/src/github.com/lightningnetwork/lnd/test_lnd/data/chain/bitcoin/simnet"
+  macdir: "macaroons"
+
+  # The chain network the lnd is active on.
+  network: "simnet"
+
+# Settings for the etcd instance which the proxy will use to reliably store and
+# retrieve token information.
+etcd:
+  # The client host:port which the etcd instance can be reached at.
+  host: "localhost:2379"
+
+# List of services that should be reachable behind the proxy.  Requests will be
+# matched to the services in order, picking the first that satisfies hostregexp
+# and (if set) pathregexp. So order is important!
+#
+# Use single quotes for regular expressions with special characters in them to
+# avoid YAML parsing errors!
+services:
+  - name: "gpt-4-all-proxy"
+    hostregexp: "localhost"
+    pathregexp: '^/.*$'
+    address: "localhost:4891"
+      #address: "localhost:8080"
+    protocol: http
+    # A comma-delimited list of capabilities that will be granted for tokens of
+    # the service at the base tier.
+    capabilities: "gpt3-turbo,gpt-4"
+    # a caveat will be added that expires the LSAT after this many seconds,
+    # 31557600 = 1 year.
+    timeout: 31557600    
+    constraints:
+        "valid_until": "2023-06-01"
+    price: 100
+      # dynamicprice:
+      #   enabled: true
+      #   grpcaddress: 123.456.789:8083
+      #   insecure: false
+      #   tlscertpath: "path-to-pricer-server-tls-cert/tls.cert"
